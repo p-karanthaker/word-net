@@ -10,6 +10,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import uk.ac.aston.dc2310.wordnet.data.POS;
+import uk.ac.aston.dc2310.wordnet.data.Synset;
+import uk.ac.aston.dc2310.wordnet.data.WordSense;
+
 /**
  * A simple text-based user interface for looking up from WordNet 3.0:
  * - meanings of a word

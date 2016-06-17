@@ -3,6 +3,10 @@ package uk.ac.aston.dc2310.wordnet.main;
 import java.util.List;
 import java.util.Set;
 
+import uk.ac.aston.dc2310.wordnet.data.POS;
+import uk.ac.aston.dc2310.wordnet.data.Synset;
+import uk.ac.aston.dc2310.wordnet.data.WordSense;
+
 public interface WNController {
 
 	/**
