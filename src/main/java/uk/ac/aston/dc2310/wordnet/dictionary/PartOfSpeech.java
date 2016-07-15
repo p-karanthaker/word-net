@@ -29,7 +29,12 @@ public enum PartOfSpeech {
 	/**
 	 * Adverb - an adverb Synset ID will start with 4.
 	 */
-	ADV(4);
+	ADV(4),
+	
+	/**
+	 * None - part of speech not found.
+	 */
+	NONE(0);
 	
 	/**
 	 * The value which maps the first digit in the
