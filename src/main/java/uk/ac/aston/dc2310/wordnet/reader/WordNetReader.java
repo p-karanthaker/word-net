@@ -68,7 +68,7 @@ public class WordNetReader {
 	}
 	
 	public void process() {
-		dictionary.getMeanings("CHICKEN");
+		dictionary.getMeanings("true");
 		
 		System.out.println("List length: " + dictionary.getDictionarySize());
 		

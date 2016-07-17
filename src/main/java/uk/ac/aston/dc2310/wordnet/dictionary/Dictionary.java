@@ -1,7 +1,11 @@
 package uk.ac.aston.dc2310.wordnet.dictionary;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,33 +47,41 @@ public class Dictionary implements WNControllerStringOnly {
 	
 	@Override
 	public String getMeanings(String word) {
-		long startTime = System.nanoTime();
-		Set<LexicalUnit> res = words.get(word.toUpperCase());
-		for (LexicalUnit lu : res) {
-			Gloss gloss = glosses.get(lu.getSynsetId());
-			StringBuilder sb = new StringBuilder();
-			sb.append(String.format("[%s] ", lu.getPartOfSpeech()))
-				.append(String.format("%s ", lu.getLexicalUnit()))
-				.append(String.format("%s", gloss.getSense()));
-			System.out.println(sb.toString());
-		}
-		long endTime = System.nanoTime();
-		long elapsedTime = endTime - startTime;
-		System.out.println("Time taken to find: " + elapsedTime/1000000);
-		/*Iterator it = this.words.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry pair = (Map.Entry)it.next();
-	        if (pair.getKey().equals(word.toUpperCase())) {
-	        	System.out.println(pair.getKey() + " = " + pair.getValue());
-	        }
-	    }*/
-		System.out.println("Gloss length: " + glosses.size());
+		this.getMeanings(word, PartOfSpeech.NONE.getName());
 	    return null;
 	}
 
 	@Override
 	public String getMeanings(String word, String pos) {
-		// TODO Auto-generated method stub
+		long startTime = System.nanoTime();
+		Set<LexicalUnit> res = words.get(word.toUpperCase());
+		List<LexicalUnit> resList = new ArrayList<LexicalUnit>(res);
+		
+		Collections.sort(resList, new Comparator<LexicalUnit>(){
+		   public int compare(LexicalUnit o1, LexicalUnit o2){
+			   int value1 = o1.getPartOfSpeech().getValue() - o2.getPartOfSpeech().getValue();
+		        if (value1 == 0) {
+		            return o1.getSenseNumber() - o2.getSenseNumber();
+		        }
+		        return value1;
+		   }
+		});
+		
+		for (LexicalUnit lu : resList) {
+			Gloss gloss = glosses.get(lu.getSynsetId());
+			PartOfSpeech selector = PartOfSpeech.valueOf(pos.toUpperCase());
+			if (selector.equals(lu.getPartOfSpeech()) || selector.equals(PartOfSpeech.NONE)) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(String.format("[%s] ", lu.getPartOfSpeech().getName()))
+					.append(String.format("%s - ", lu.getLexicalUnit()))
+					.append(String.format("%s", gloss.getSense()));
+				System.out.println(sb.toString());
+			}
+		}
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startTime;
+		System.out.println("Time taken to find: " + elapsedTime/1000000);
+		System.out.println("Gloss length: " + glosses.size());
 		return null;
 	}
 

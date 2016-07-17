@@ -14,27 +14,27 @@ public enum PartOfSpeech {
 	/**
 	 * Noun - a noun Synset ID will start with 1.
 	 */
-	NOUN(1),
+	N(1, "NOUN"),
 	
 	/**
 	 * Verb - a verb Synset ID will start with 2.
 	 */
-	VERB(2),
+	V(2, "VERB"),
 	
 	/**
 	 * Adjective - an adjective Synset ID will start with 3.
 	 */
-	ADJECTIVE(3),
+	ADJ(3, "ADJECTIVE"),
 	
 	/**
 	 * Adverb - an adverb Synset ID will start with 4.
 	 */
-	ADVERB(4),
+	ADV(4, "ADVERB"),
 	
 	/**
 	 * None - part of speech not found.
 	 */
-	NONE(0);
+	NONE(0, "NONE");
 	
 	/**
 	 * The value which maps the first digit in the
@@ -42,13 +42,16 @@ public enum PartOfSpeech {
 	 */
 	private int value;
 	
+	private String name;
+	
 	/**
 	 * Constructor for a PartOfSpeech. Pass the value which is assigned.
 	 * 
 	 * @param value	The value assigned to the part of speech. 
 	 */
-	private PartOfSpeech(int value) {
+	private PartOfSpeech(int value, String name) {
 		this.value = value;
+		this.name = name;
 	}
 	
 	/**
@@ -59,6 +62,10 @@ public enum PartOfSpeech {
 	 */
 	public int getValue() {
 		return this.value;
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 	
 }
