@@ -7,6 +7,8 @@ public class App {
 	public static void main(String[] args) {
 		WordNetReader wnRead = new WordNetReader();
 		wnRead.readWN_S();
+		wnRead.readWN_G();
+		wnRead.process();
 	}
 	
 }

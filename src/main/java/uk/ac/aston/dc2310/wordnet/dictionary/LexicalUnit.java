@@ -1,13 +1,13 @@
 package uk.ac.aston.dc2310.wordnet.dictionary;
 
-public class Synset {
+public class LexicalUnit {
 
 	private int synsetId;
 	private PartOfSpeech partOfSpeech;
 	private String lexicalUnit;
 	private byte senseNumber;
 	
-	public Synset(int synsetId, String lexicalUnit, byte senseNumber) {
+	public LexicalUnit(int synsetId, String lexicalUnit, byte senseNumber) {
 		this.synsetId = synsetId;
 		this.lexicalUnit = lexicalUnit;
 		this.senseNumber = senseNumber;
@@ -43,7 +43,7 @@ public class Synset {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(String.format("SynsetID: %d%n", this.synsetId))
-			.append(String.format("PartOfSpeech: %s%n", this.partOfSpeech.toString()))
+			.append(String.format("PartOfSpeech: %s%n", this.partOfSpeech))
 			.append(String.format("Lexical Unit: %s%n", this.lexicalUnit))
 			.append(String.format("Sense Number: %d%n", this.senseNumber));
 		return sb.toString();

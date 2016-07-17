@@ -14,22 +14,22 @@ public enum PartOfSpeech {
 	/**
 	 * Noun - a noun Synset ID will start with 1.
 	 */
-	N(1),
+	NOUN(1),
 	
 	/**
 	 * Verb - a verb Synset ID will start with 2.
 	 */
-	V(2),
+	VERB(2),
 	
 	/**
 	 * Adjective - an adjective Synset ID will start with 3.
 	 */
-	ADJ(3),
+	ADJECTIVE(3),
 	
 	/**
 	 * Adverb - an adverb Synset ID will start with 4.
 	 */
-	ADV(4),
+	ADVERB(4),
 	
 	/**
 	 * None - part of speech not found.
@@ -60,4 +60,5 @@ public enum PartOfSpeech {
 	public int getValue() {
 		return this.value;
 	}
+	
 }
