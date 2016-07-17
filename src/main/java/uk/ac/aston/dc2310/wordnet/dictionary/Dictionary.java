@@ -23,12 +23,21 @@ public class Dictionary implements WNControllerStringOnly {
 	
 	public void add(LexicalUnit word) {
 		String lexicalUnit = word.getLexicalUnit().toUpperCase();
-		if (!words.containsKey(lexicalUnit)) {
-			Set<LexicalUnit> lexicalUnits = new HashSet<LexicalUnit>();
-			lexicalUnits.add(word);
-			words.put(lexicalUnit, lexicalUnits);
-		} else {
+		if (words.containsKey(lexicalUnit)) {
+			boolean alreadyInSet = false;
 			Set<LexicalUnit> lexicalUnits = words.get(lexicalUnit);
+			// Loop over lexical units to check if a specific synset 
+			for (LexicalUnit lu : lexicalUnits) {
+				if (lu.getSynsetId() == word.getSynsetId()) {
+					alreadyInSet = true;
+				}
+			}
+			if (!alreadyInSet) {
+				lexicalUnits.add(word);
+				words.put(lexicalUnit, lexicalUnits);
+			}
+		} else {
+			Set<LexicalUnit> lexicalUnits = new HashSet<LexicalUnit>();
 			lexicalUnits.add(word);
 			words.put(lexicalUnit, lexicalUnits);
 		}
@@ -57,6 +66,7 @@ public class Dictionary implements WNControllerStringOnly {
 		Set<LexicalUnit> res = words.get(word.toUpperCase());
 		List<LexicalUnit> resList = new ArrayList<LexicalUnit>(res);
 		
+		// Sort the list by POS first, then by Sense Number
 		Collections.sort(resList, new Comparator<LexicalUnit>(){
 		   public int compare(LexicalUnit o1, LexicalUnit o2){
 			   int value1 = o1.getPartOfSpeech().getValue() - o2.getPartOfSpeech().getValue();
