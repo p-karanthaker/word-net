@@ -55,6 +55,9 @@ public class WordNetReader {
 					String sense = str[1];
 					String example = str.length == 3 ? str[2] : null;
 					dictionary.add(new Gloss(synsetID, sense, example));
+				} else if (filename.equals(this.WN_HYP)) {
+					int synsetID_2 = Integer.parseInt(str[1]);
+					dictionary.add(synsetID, synsetID_2);
 				}
 		    }
 		} catch (FileNotFoundException e) {
@@ -67,11 +70,8 @@ public class WordNetReader {
 		System.out.println("Time taken to read: " + elapsedTime/1000000);
 	}
 	
-	public void process() {
-		dictionary.getMeanings("true");
-		
-		System.out.println("List length: " + dictionary.getDictionarySize());
-		
+	public Dictionary getDictionary() {
+		return this.dictionary;
 	}
 	
 }

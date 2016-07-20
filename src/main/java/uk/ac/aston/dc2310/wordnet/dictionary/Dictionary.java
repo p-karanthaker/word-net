@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import uk.ac.aston.dc2310.wordnet.main.WNControllerStringOnly;
 
@@ -15,10 +17,12 @@ public class Dictionary implements WNControllerStringOnly {
 	
 	private Map<String, Set<LexicalUnit>> words;
 	private Map<Integer, Gloss> glosses;
+	private TreeMap<Integer, TreeSet<Integer>> hyponyms;
 	
 	public Dictionary() {
 		words = new HashMap<String, Set<LexicalUnit>>();
 		glosses = new HashMap<Integer, Gloss>();
+		hyponyms = new TreeMap<Integer, TreeSet<Integer>>();
 	}
 	
 	public void add(LexicalUnit word) {
@@ -26,7 +30,9 @@ public class Dictionary implements WNControllerStringOnly {
 		if (words.containsKey(lexicalUnit)) {
 			boolean alreadyInSet = false;
 			Set<LexicalUnit> lexicalUnits = words.get(lexicalUnit);
-			// Loop over lexical units to check if a specific synset 
+			/* Loop over lexical units to check if a specific synset
+			 * is already in the set.
+			 */
 			for (LexicalUnit lu : lexicalUnits) {
 				if (lu.getSynsetId() == word.getSynsetId()) {
 					alreadyInSet = true;
@@ -49,56 +55,105 @@ public class Dictionary implements WNControllerStringOnly {
 			glosses.put(synsetId, gloss);
 		}
 	}
+	
+	public void add(int synsetId1, int synsetId2) {
+		if (hyponyms.containsKey(synsetId1)) {
+			boolean alreadyInSet = false;
+			TreeSet<Integer> hypernyms = hyponyms.get(synsetId1);
+			for (Integer synsetId : hypernyms) {
+				if (synsetId == synsetId2) {
+					alreadyInSet = true;
+				}
+			}
+			if (!alreadyInSet) {
+				hypernyms.add(synsetId2);
+				hyponyms.put(synsetId1, hypernyms);
+			}
+		} else {
+			TreeSet<Integer> hypernyms = new TreeSet<Integer>();
+			hypernyms.add(synsetId2);
+			hyponyms.put(synsetId1, hypernyms);
+		}
+	}
 
 	public int getDictionarySize() {
 		return this.words.size();
 	}
 	
-	@Override
-	public String getMeanings(String word) {
-		this.getMeanings(word, PartOfSpeech.NONE.getName());
-	    return null;
-	}
-
-	@Override
-	public String getMeanings(String word, String pos) {
-		long startTime = System.nanoTime();
-		Set<LexicalUnit> res = words.get(word.toUpperCase());
-		List<LexicalUnit> resList = new ArrayList<LexicalUnit>(res);
+	private List<LexicalUnit> sortLexicalUnits(Set<LexicalUnit> lexicalUnits) {
+		List<LexicalUnit> resList = new ArrayList<LexicalUnit>(lexicalUnits);
 		
 		// Sort the list by POS first, then by Sense Number
 		Collections.sort(resList, new Comparator<LexicalUnit>(){
 		   public int compare(LexicalUnit o1, LexicalUnit o2){
-			   int value1 = o1.getPartOfSpeech().getValue() - o2.getPartOfSpeech().getValue();
-		        if (value1 == 0) {
+			   int partOfSpeech = o1.getPartOfSpeech().getValue() - o2.getPartOfSpeech().getValue();
+		        if (partOfSpeech == 0) {
 		            return o1.getSenseNumber() - o2.getSenseNumber();
 		        }
-		        return value1;
+		        return partOfSpeech;
 		   }
 		});
+		return resList;
+	}
+	
+	@Override
+	public String getMeanings(String word) {
+		return this.getMeanings(word, PartOfSpeech.NONE.getName());
+	}
+
+	@Override
+	public String getMeanings(String word, String pos) {
+		Set<LexicalUnit> lexicalUnits = words.get(word.toUpperCase());
 		
-		for (LexicalUnit lu : resList) {
+		List<LexicalUnit> sortedLexicalUnits = this.sortLexicalUnits(lexicalUnits);
+		StringBuilder sb = new StringBuilder();
+		for (LexicalUnit lu : sortedLexicalUnits) {
 			Gloss gloss = glosses.get(lu.getSynsetId());
 			PartOfSpeech selector = PartOfSpeech.valueOf(pos.toUpperCase());
 			if (selector.equals(lu.getPartOfSpeech()) || selector.equals(PartOfSpeech.NONE)) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(String.format("[%s] ", lu.getPartOfSpeech().getName()))
+				sb.append(String .format("(%s) ", lu.getSynsetId()))
+					.append(String.format("[%s] ", lu.getPartOfSpeech().getName()))
 					.append(String.format("%s - ", lu.getLexicalUnit()))
-					.append(String.format("%s", gloss.getSense()));
-				System.out.println(sb.toString());
+					.append(String.format("%s%n", gloss.getSense()));
 			}
 		}
-		long endTime = System.nanoTime();
-		long elapsedTime = endTime - startTime;
-		System.out.println("Time taken to find: " + elapsedTime/1000000);
-		System.out.println("Gloss length: " + glosses.size());
-		return null;
+		return sb.toString();
 	}
 
 	@Override
 	public String getDirectHypernyms(String word) {
-		// TODO Auto-generated method stub
-		return null;
+		Set<LexicalUnit> lexicalUnits = words.get(word.toUpperCase());
+		List<LexicalUnit> sortedLexicalUnits = this.sortLexicalUnits(lexicalUnits);
+		
+		StringBuilder sb = new StringBuilder();
+		for (LexicalUnit lexicalUnit : sortedLexicalUnits) {
+			Set<Integer> hypernymSet = hyponyms.get(lexicalUnit.getSynsetId());
+			if (hypernymSet != null) {
+				// Loop over hypernymSet in case a synset has multiple hypernyms
+				for (Integer i : hypernymSet) {
+					sb.append(String.format("(%d) ", i));
+					sb.append(String.format("[%s]\t", new LexicalUnit(i, "", Byte.MIN_VALUE).getPartOfSpeech().getName()));
+					sb.append(String.format("%s%n", glosses.get(i).getSense()));
+					for(Map.Entry<String,Set<LexicalUnit>> entry : words.entrySet()) {
+					  Set<LexicalUnit> value = entry.getValue();
+					  for (LexicalUnit lu : value) {
+						  if (lu.getSynsetId() == i) {
+							  sb.append(String.format("\t\t\t%s (%d)%n", lu.getLexicalUnit(), lu.getSenseNumber()));
+						  }
+					  }
+					}
+					sb.append("\n");
+				}
+			}
+		}
+		
+		/*for(Map.Entry<Integer,TreeSet<Integer>> entry : hyponyms.entrySet()) {
+		  Integer key = entry.getKey();
+		  Set<Integer> value = entry.getValue();
+
+		  System.out.println(key + " => " + value);
+		}*/
+		return sb.toString();
 	}
 
 	@Override
@@ -106,6 +161,5 @@ public class Dictionary implements WNControllerStringOnly {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 	
 }

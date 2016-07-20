@@ -8,7 +8,9 @@ public class App {
 		WordNetReader wnRead = new WordNetReader();
 		wnRead.readWN_S();
 		wnRead.readWN_G();
-		wnRead.process();
+		wnRead.readWN_HYP();
+		//wnRead.getDictionary().getDirectHypernyms("quit");
+		new WordNetUIStringOnly(wnRead.getDictionary());
 	}
 	
 }
