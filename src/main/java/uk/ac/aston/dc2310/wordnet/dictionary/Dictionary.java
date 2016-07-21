@@ -16,11 +16,13 @@ import uk.ac.aston.dc2310.wordnet.main.WNControllerStringOnly;
 public class Dictionary implements WNControllerStringOnly {
 	
 	private Map<String, Set<LexicalUnit>> words;
+	private Map<Integer, Set<LexicalUnit>> synsets;
 	private Map<Integer, Gloss> glosses;
 	private TreeMap<Integer, TreeSet<Integer>> hyponyms;
 	
 	public Dictionary() {
 		words = new HashMap<String, Set<LexicalUnit>>();
+		synsets = new HashMap<Integer, Set<LexicalUnit>>();
 		glosses = new HashMap<Integer, Gloss>();
 		hyponyms = new TreeMap<Integer, TreeSet<Integer>>();
 	}
@@ -46,6 +48,24 @@ public class Dictionary implements WNControllerStringOnly {
 			Set<LexicalUnit> lexicalUnits = new HashSet<LexicalUnit>();
 			lexicalUnits.add(word);
 			words.put(lexicalUnit, lexicalUnits);
+		}
+		
+		if (synsets.containsKey(word.getSynsetId())) {
+			boolean alreadyInSet = false;
+			Set<LexicalUnit> synset = synsets.get(word.getSynsetId());
+			for (LexicalUnit lu : synset) {
+				if (lu.getLexicalUnit().equals(word.getLexicalUnit())) {
+					alreadyInSet = true;
+				}
+			}
+			if (!alreadyInSet) {
+				synset.add(word);
+				synsets.put(word.getSynsetId(), synset);
+			}
+		} else {
+			Set<LexicalUnit> synset = new HashSet<LexicalUnit>();
+			synset.add(word);
+			synsets.put(word.getSynsetId(), synset);
 		}
 	}
 	
@@ -134,13 +154,8 @@ public class Dictionary implements WNControllerStringOnly {
 					sb.append(String.format("(%d) ", i));
 					sb.append(String.format("[%s]\t", new LexicalUnit(i, "", Byte.MIN_VALUE).getPartOfSpeech().getName()));
 					sb.append(String.format("%s%n", glosses.get(i).getSense()));
-					for(Map.Entry<String,Set<LexicalUnit>> entry : words.entrySet()) {
-					  Set<LexicalUnit> value = entry.getValue();
-					  for (LexicalUnit lu : value) {
-						  if (lu.getSynsetId() == i) {
-							  sb.append(String.format("\t\t\t%s (%d)%n", lu.getLexicalUnit(), lu.getSenseNumber()));
-						  }
-					  }
+					for (LexicalUnit lu : synsets.get(i)) {
+						sb.append(String.format("\t\t\t%s (%d)%n", lu.getLexicalUnit(), lu.getSenseNumber()));
 					}
 					sb.append("\n");
 				}
@@ -158,7 +173,25 @@ public class Dictionary implements WNControllerStringOnly {
 
 	@Override
 	public String getAllHypernyms(String synsetId) {
-		// TODO Auto-generated method stub
+		TreeSet<Integer> hypernyms = hyponyms.get(Integer.parseInt(synsetId));
+		List<Integer> synsetList = new ArrayList<Integer>();
+		
+		
+		StringBuilder sb = new StringBuilder();
+		if (hypernyms != null) {
+			for (Integer synsetId1 : hypernyms) {
+				if (synsetId1 != null) {
+					sb.append(String.format("(%d) ", synsetId1));
+					sb.append(String.format("[%s] ", new LexicalUnit(synsetId1, "", Byte.MIN_VALUE).getPartOfSpeech().getName()));
+					sb.append(String.format("%s: ", glosses.get(synsetId1).getSense()));
+					for (LexicalUnit lu : synsets.get(synsetId1)) {
+						sb.append(String.format("%s (%d), ", lu.getLexicalUnit(), lu.getSenseNumber()));
+					}
+					this.getAllHypernyms(Integer.toString(synsetId1));
+				}
+			}
+		}
+		System.out.println(sb.toString());
 		return null;
 	}
 	
