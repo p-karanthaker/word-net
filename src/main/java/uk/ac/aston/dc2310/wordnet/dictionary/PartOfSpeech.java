@@ -42,12 +42,16 @@ public enum PartOfSpeech {
 	 */
 	private int value;
 	
+	/**
+	 * The full name of the Part Of Speech. E.g. PartOfSpeech.N == NOUN
+	 */
 	private String name;
 	
 	/**
 	 * Constructor for a PartOfSpeech. Pass the value which is assigned.
 	 * 
 	 * @param value	The value assigned to the part of speech. 
+	 * @param name The long/full name given to the Part Of Speech
 	 */
 	private PartOfSpeech(int value, String name) {
 		this.value = value;
@@ -64,6 +68,10 @@ public enum PartOfSpeech {
 		return this.value;
 	}
 	
+	/**
+	 * Return the full name of the Part Of Speech. E.g. PartOfSpeech.N.getName() would return "NOUN"
+	 * @return the full name of the Part Of Speech
+	 */
 	public String getName() {
 		return this.name;
 	}

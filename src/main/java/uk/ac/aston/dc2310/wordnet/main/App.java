@@ -4,6 +4,10 @@ import uk.ac.aston.dc2310.wordnet.reader.WordNetReader;
 
 public class App {
 
+	/**
+	 * Application entry point.
+	 * @param args command line args
+	 */
 	public static void main(String[] args) {
 		WordNetReader wnRead = new WordNetReader();
 		wnRead.readWN_S();

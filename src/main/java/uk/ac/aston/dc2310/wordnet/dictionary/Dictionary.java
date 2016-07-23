@@ -174,11 +174,31 @@ public class Dictionary implements WNControllerStringOnly {
 	@Override
 	public String getAllHypernyms(String synsetId) {
 		TreeSet<Integer> hypernyms = hyponyms.get(Integer.parseInt(synsetId));
-		List<Integer> synsetList = new ArrayList<Integer>();
-		
+		//List<Integer> synsetList = new ArrayList<Integer>();
 		
 		StringBuilder sb = new StringBuilder();
-		if (hypernyms != null) {
+		
+		// Loop over hypernyms to find all hypernyms
+		int tabs = 0;
+		while (hypernyms != null) {
+			for (Integer synsetId1 : hypernyms) {
+				if (tabs > 0) {
+					for (int i = 0; i < tabs; i++) {
+						sb.append("\t");
+					}
+				}
+				tabs++;
+				sb.append(String.format("(%d) ", synsetId1));
+				sb.append(String.format("[%s] ", new LexicalUnit(synsetId1, "", Byte.MIN_VALUE).getPartOfSpeech().getName()));
+				sb.append(String.format("%s: ", glosses.get(synsetId1).getSense()));
+				for (LexicalUnit lu : synsets.get(synsetId1)) {
+					sb.append(String.format("%s (%d), ", lu.getLexicalUnit(), lu.getSenseNumber()));
+				}
+				sb.append("\n");
+				hypernyms = hyponyms.get(synsetId1);
+			}
+		}
+		/*if (hypernyms != null) {
 			for (Integer synsetId1 : hypernyms) {
 				if (synsetId1 != null) {
 					sb.append(String.format("(%d) ", synsetId1));
@@ -190,9 +210,8 @@ public class Dictionary implements WNControllerStringOnly {
 					this.getAllHypernyms(Integer.toString(synsetId1));
 				}
 			}
-		}
-		System.out.println(sb.toString());
-		return null;
+		}*/
+		return sb.toString();
 	}
 	
 }
