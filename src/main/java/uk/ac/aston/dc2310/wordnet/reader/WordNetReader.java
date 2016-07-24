@@ -59,30 +59,18 @@ public class WordNetReader {
 	}
 
 	/**
-	 * Calls the WordNetReader.read() method  for the 
-	 * wn_s.csv file to guarantee that a valid filename 
+	 * Calls the WordNetReader.read() method to read all WordNet files to guarantee that a valid filename 
 	 * is passed to the method.
 	 */
-	public void readWN_S() {
-		this.read(this.WN_S);
-	}
-	
-	/**
-	 * Calls the WordNetReader.read() method for the
-	 * wn_g.csv file to guarantee that a valid filename 
-	 * is passed to the method.
-	 */
-	public void readWN_G() {
-		this.read(this.WN_G);
-	}
-	
-	/**
-	 * Calls the WordNetReader.read() method for the 
-	 * wn_hyp.csv file to guarantee that a vlid filename
-	 * is passed to the method.
-	 */
-	public void readWN_HYP() {
-		this.read(this.WN_HYP);
+	public void readFiles() {
+		System.out.println("Loading WordNet...");
+		long startTime = System.nanoTime();
+		this.read(WN_S);
+		this.read(WN_G);
+		this.read(WN_HYP);
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startTime;
+		System.out.printf("Completed loading in: %dms%n", elapsedTime/1000000);
 	}
 	
 	/**
@@ -92,8 +80,6 @@ public class WordNetReader {
 	 */
 	private void read(String filename) {
 		InputStream in = this.getClass().getResourceAsStream(filename);
-		long startTime = System.nanoTime();
-		// the process to be timed
 		try(BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"))) {
 		    for(String line; (line = br.readLine()) != null; ) {
 		    	String[] str = line.split(DELIMITER);
@@ -116,9 +102,6 @@ public class WordNetReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		long endTime = System.nanoTime();
-		long elapsedTime = endTime - startTime;
-		System.out.println("Time taken to read: " + elapsedTime/1000000);
 	}
 	
 	/**
