@@ -47,9 +47,9 @@ public class Dictionary implements WNControllerStringOnly {
 	 * Constructor for a Dictionary object which initialises the Map structures.
 	 */
 	public Dictionary() {
-		words = new HashMap<String, Set<LexicalUnit>>();
-		synsets = new HashMap<Integer, Set<LexicalUnit>>();
-		glosses = new HashMap<Integer, Gloss>();
+		words = new HashMap<String, Set<LexicalUnit>>(100000);
+		synsets = new HashMap<Integer, Set<LexicalUnit>>(100000);
+		glosses = new HashMap<Integer, Gloss>(100000);
 		hyponyms = new TreeMap<Integer, TreeSet<Integer>>();
 	}
 	
@@ -130,6 +130,9 @@ public class Dictionary implements WNControllerStringOnly {
 	 * @param synsetId2 The Hypernym synset id
 	 */
 	public void add(int synsetId1, int synsetId2) {
+		/*
+		 * Checks if hyponym synset id is already in the map
+		 */
 		if (hyponyms.containsKey(synsetId1)) {
 			boolean alreadyInSet = false;
 			TreeSet<Integer> hypernyms = hyponyms.get(synsetId1);
@@ -172,14 +175,15 @@ public class Dictionary implements WNControllerStringOnly {
 	private List<LexicalUnit> sortLexicalUnits(Set<LexicalUnit> lexicalUnits) {
 		List<LexicalUnit> resList = new ArrayList<LexicalUnit>(lexicalUnits);
 	
-		Collections.sort(resList, new Comparator<LexicalUnit>(){
-		   public int compare(LexicalUnit o1, LexicalUnit o2){
-			   int partOfSpeech = o1.getPartOfSpeech().getValue() - o2.getPartOfSpeech().getValue();
-		        if (partOfSpeech == 0) {
-		            return o1.getSenseNumber() - o2.getSenseNumber();
-		        }
-		        return partOfSpeech;
-		   }
+		Collections.sort(resList, new Comparator<LexicalUnit>() {
+			public int compare(LexicalUnit o1, LexicalUnit o2) {
+				int partOfSpeech = o1.getPartOfSpeech().getValue() - o2.getPartOfSpeech().getValue();
+				// Sort by sense number if the part of speech is the same
+				if (partOfSpeech == 0) {
+					return o1.getSenseNumber() - o2.getSenseNumber();
+				}
+				return partOfSpeech;
+			}
 		});
 		return resList;
 	}
